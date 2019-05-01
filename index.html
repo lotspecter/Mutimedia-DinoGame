@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>rpg</title>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script type="text/javascript" src = "simpleGame.js"></script>
+    <script type="text/javascript">
+    
+    var game;
+    var dino;
+    var cactus;
+    var heart;
+    var home;
+
+    var NUM_HEART = 3;
+    var NUM_CACTUS = 3
+
+    var BG_SPEED = 5;
+    var newXCactus = 0;
+    var newXhEART = 600;
+    var checktohome = 1 ;
+
+    function BG(){
+        tBG = new Sprite(game, "asstes/FlatNatureArt.png", 1600, 600);
+        tBG.setDX(BG_SPEED);
+        tBG.setDY(0);
+        tBG.setPosition(400, 300);
+        
+        tBG.checkBounds = function(){
+           //seamless ocean gif repeats
+        
+            if (this.x > 800){
+                this.setPosition(400, 300)
+                checktohome += 1;
+            } // end if
+        } // end checkBounds
+        
+        return tBG;
+    }
+
+    function HOME(){
+        tHome = new Sprite(game, "asstes/mansion.png", 256, 256);
+        tHome.setSpeed(0);
+        tHome.setPosition(650, 370);
+
+        return tHome;
+
+    }
+    function DINO(){
+        tDino = new Sprite(game, "asstes/sprites/freedinosprite/png/Idle (1).png", 170, 118);
+        tDino.setPosition(100, 450);
+        tDino.falling = true;
+
+
+        tDino.checkKeys = function(){
+            if (keysDown[K_SPACE]){
+                if (this.falling == false){
+                    this.setImage("asstes/sprites/freedinosprite/png/Jump (5).png");
+                    this.y -= 50;
+                    this.falling = true;
+                    this.addVector(0, 20);
+                } // end if
+            }
+        } //
+        
+        tDino.checkGravity = function(){
+            tDino.changeXby(+5);
+            if (this.falling){
+                this.addVector(185, 1);
+
+                //stop if on floor
+                if (this.y >= 440){
+                    //character.backup();
+                    this.setImage("asstes/sprites/freedinosprite/png/Idle (1).png");
+                    this.falling = false;
+                    this.setSpeed(0);
+                    
+                }
+            } // end if
+
+        } // end checkGravity
+
+        return tDino;
+    
+    }
+
+    function CACTUS(){
+        tCatus = new Sprite(game, "asstes/cactus.png", 102, 152);
+        tCatus.setSpeed(0);
+        tCatus.setPosition(400, 420);
+
+        tCatus.reset = function(){
+            this.setDX(-2);
+            //newXCactus = 120 * game.width;
+
+            newXCactus += 300;
+            this.setPosition(newXCactus, 420);
+        } // end reset
+        tCatus.reset();
+        return tCatus;
+    }
+
+    function HEART(){
+        tHeart = new Sprite(game, "asstes/heart.png", 50, 50);
+        tHeart.setSpeed(0);
+        tHeart.setPosition(600, 30);
+        tHeart.reset = function(){
+            newXhEART += 50;
+            this.setPosition(newXhEART, 50);
+        } // end reset
+        
+        tHeart.checkBounds = function(){
+            if (this.y > game.height){
+                this.reset();
+            } // end if
+        } // end checkBounds
+        
+        tHeart.reset();
+
+        return tHeart;
+    }
+
+    function makeCactus(){
+        cactus = new Array(NUM_CACTUS);
+        for(i = 0;i < NUM_CACTUS; i++){
+            cactus[i] = new CACTUS();
+        }
+
+    }
+
+    function updatCactus(){
+        for (i = 0; i < NUM_CACTUS; i++){
+            cactus[i].update();
+        } 
+    }
+
+    function makeHearts(){
+        heart = new Array(NUM_HEART);
+        for (i = 0; i < NUM_HEART; i++){
+            heart[i] = new HEART();
+        } // end for
+    } // end makeClouds
+
+    function updatHearts(){
+        for (i = 0; i < NUM_HEART; i++){
+            heart[i].update();
+        } 
+    } 
+
+    function checkDistance(){
+        for (i = 0; i < NUM_CACTUS; i++){
+            dist = cactus[i].distanceTo(dino);
+            if(NUM_HEART !=0 ){
+                if (dist < 90 && heart != 0){
+                    NUM_HEART--;
+                    //output.innerHTML = "Collision: " + dist;
+                    //heart--;
+                    //output.innerHTML = heart;
+                    cactus[i].reset();
+                }
+            }else{
+                swal("Game OVER!!!", {
+                    buttons: false,
+                    timer: 2000,
+                }).then((value) => {
+                    location.reload();
+                });
+                game.stop();
+            }     
+        }
+    } 
+
+    function checkgoal(){
+        console.log(checktohome);
+        if(checktohome == 2){
+            home.update();
+        }
+    }
+
+    function init(){
+        
+        game = new Scene();
+        dino = new DINO();
+        home = new HOME();
+        game.hideCursor();
+
+        makeCactus();
+        makeHearts();
+
+        background = new BG();
+        game.start();
+    } // end init
+    
+    function update(){
+        game.clear();
+        background.update();
+        //checkCollisions();
+
+        dino.checkKeys();
+        dino.checkGravity();
+        
+        updatCactus();
+        dino.update();
+        updatHearts();
+        checkDistance();
+        checkgoal();
+    } // end update
+    
+    </script>
+</head>
+<body onload = "init()">
+    <div id = "output"></div>
+</body>
+</html>
