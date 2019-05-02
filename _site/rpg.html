@@ -5,19 +5,6 @@
     <title>rpg</title>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script type="text/javascript" src = "simpleGame.js"></script>
-    <style type="text/css">
-        #score {
-            position: absolute;
-            font-size: 2em;
-            left: 50px;
-            top: 30px;
-            width: 200px;
-            border: 0px;
-            padding: .25em;
-            z-index: 999;
-        } 
-        
-    </style>
     <script type="text/javascript">
     
     var game;
@@ -27,15 +14,12 @@
     var home;
 
     var NUM_HEART = 3;
-    var NUM_CACTUS = 3;
+    var NUM_CACTUS = 3
 
-    var DINO_SPEED = 2;
-    var CACTUS_SPEED = 6;
     var BG_SPEED = 5;
     var newXCactus = 0;
     var newXhEART = 600;
     var checktohome = 1 ;
-    var score = 0;
 
     var HeartSoundMP3;
     var HeartSoundOGG;
@@ -48,17 +32,11 @@
         
         tBG.checkBounds = function(){
            //seamless ocean gif repeats
-            if(checktohome >= 4){
-                BG_SPEED = 0;
-                tBG.setDX(0);
-            }else {
-                if (this.x > 800){
-                    this.setPosition(400, 300)
-                    
-                    CACTUS_SPEED++;
-                    checktohome += 1;
-                }     
-            }
+        
+            if (this.x > 800){
+                this.setPosition(400, 300)
+                checktohome += 1;
+            } // end if
         } // end checkBounds
         
         return tBG;
@@ -68,6 +46,9 @@
         tHome = new Sprite(game, "asstes/mansion.png", 256, 256);
         tHome.setSpeed(0);
         tHome.setPosition(650, 370);
+        tHome.setDX(-5);
+            
+
 
         return tHome;
 
@@ -90,9 +71,10 @@
         } //
         
         tDino.checkGravity = function(){
-            //tDino.changeXby(DINO_SPEED);
+            tDino.changeXby(+5);
             if (this.falling){
-                this.addVector(180, 1);
+                this.addVector(185, 1);
+
                 //stop if on floor
                 if (this.y >= 440){
                     //character.backup();
@@ -115,14 +97,12 @@
         tCatus.setPosition(400, 420);
 
         tCatus.reset = function(){
-            this.setDX(-CACTUS_SPEED);
+            this.setDX(-2);
             //newXCactus = 120 * game.width;
 
-            newXCactus += 250;
+            newXCactus += 300;
             this.setPosition(newXCactus, 420);
         } // end reset
-
-
         tCatus.reset();
         return tCatus;
     }
@@ -135,7 +115,12 @@
             newXhEART += 50;
             this.setPosition(newXhEART, 50);
         } // end reset
-
+        
+        tHeart.checkBounds = function(){
+            if (this.y > game.height){
+                this.reset();
+            } // end if
+        } // end checkBounds
         
         tHeart.reset();
 
@@ -174,49 +159,31 @@
             dist = cactus[i].distanceTo(dino);
             if(NUM_HEART !=0 ){
                 if (dist < 90 && heart != 0){
+
                     NUM_HEART--;
                     HeartSoundMP3.play();
-                    score -= 100;
+                    HeartSoundOGG.play();
                     //output.innerHTML = "Collision: " + dist;
                     //heart--;
                     //output.innerHTML = heart;
                     cactus[i].reset();
                 }
             }else{
-                game.stop();
-                swal({
-                    title: "Game OVER!!!",
-                    text:  "SCORE : " + (score + 5).toString(),
-                    buttons: "Restart",
-                    icon: "error",
+                swal("Game OVER!!!", {
+                    buttons: false,
+                    timer: 2000,
                 }).then((value) => {
                     location.reload();
                 });
+                game.stop();
             }     
         }
     } 
 
     function checkgoal(){
         console.log(checktohome);
-        if(checktohome >= 4 && NUM_HEART > 0){
-            home.update();
+        if(checktohome == 2 ){
             NUM_CACTUS = 0;
-            BG_SPEED = 0;
-            dino.changeXby(5);
-            if (dino.collidesWith(home)){
-                game.stop();
-                score += 5;
-                swal({
-                    title: "Welcome Back Home Dino",
-                    text:  "SCORE : " + (score + 5).toString(),
-                    buttons: "Restart",
-                    icon: "success",
-                }).then((value) => {
-                        location.reload();
-                });
-             } 
-        }
-
     }
 
     buildSounds = function(){
@@ -225,57 +192,41 @@
 
     }
 
-    function updatescore(){
-        score += 5;
-        showscore = document.getElementById("score");
-        showscore.innerHTML = "SCORE : " + score;
-
-    }
     function init(){
         
         game = new Scene();
         dino = new DINO();
         home = new HOME();
         game.hideCursor();
+
         buildSounds();
+        
         makeCactus();
         makeHearts();
 
         background = new BG();
-        swal({
-                title: "Dino Run",
-                text: "How To Play : Use Spacebar to jump",
-                buttons: "Start",
-                icon: "info",
-            }).then((value) => {
-                game.start();
-        });
+        game.start();
     } // end init
     
     function update(){
         game.clear();
-
         background.update();
-
         //checkCollisions();
 
         dino.checkKeys();
         dino.checkGravity();
+        home.update();
 
         updatCactus();
         dino.update();
         updatHearts();
         checkDistance();
         checkgoal();
-        setInterval(updatescore(), 5000)
-
-        //updatescore();
     } // end update
     
     </script>
 </head>
 <body onload = "init()">
-    <div id = "score"></div>
-
+    <div id = "output"></div>
 </body>
 </html>
