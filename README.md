@@ -2,7 +2,8 @@
 ## 88634259 Multi Media Subject
 ### This Project for Education purpose 
 ==========================	
-You need to help dino find a way to home and be careful cactus.last one don't let dino die.
+
+You need to help dino find a way to home, be careful cactus and don't let dino die.
 
 Framwork and asstes
 * [SimpleGame.js](http://aharrisbooks.net/h5g/)
