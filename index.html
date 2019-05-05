@@ -55,6 +55,7 @@
                 if (this.x > 800){
                     this.setPosition(400, 300)
                     checktohome += 1;
+
                 }     
             }
         } // end checkBounds
@@ -99,6 +100,18 @@
                     this.setSpeed(0);
                     
                 }
+            } // end if
+
+        } // end checkGravity
+
+        tDino.checkHeart= function(){
+            //tDino.changeXby(DINO_SPEED);
+            if (NUM_HEART <= 0)
+            {
+                game.stop();
+
+                this.setImage("asstes/sprites/freedinosprite/png/Dead (5).png");
+
             } // end if
 
         } // end checkGravity
@@ -170,7 +183,7 @@
     function checkDistance(){
         for (i = 0; i < NUM_CACTUS; i++){
             dist = cactus[i].distanceTo(dino);
-            if(NUM_HEART !=0 ){
+            if(NUM_HEART != 0 ){
                 if (dist < 90 && heart != 0){
                     NUM_HEART--;
                     HeartSoundMP3.play();
@@ -178,12 +191,11 @@
                     //output.innerHTML = "Collision: " + dist;
                     //heart--;
                     //output.innerHTML = heart;
-                    cactus[i].setPosition(0,-50);
-                    cactus[i].hide();
-                    //cactus[i].reset();
+                    //cactus[i].setPosition(0,-50);
+                    //cactus[i].hide();
+                    cactus[i].reset();
                 }
             }else{
-                game.stop();
                 swal({
                     title: "Game OVER!!!",
                     text:  "SCORE : " + (score + 5).toString(),
@@ -258,10 +270,11 @@
         background.update();
 
         //checkCollisions();
+        dino.checkHeart();
 
         dino.checkKeys();
         dino.checkGravity();
-
+        
         updatCactus();
         dino.update();
         updatHearts();
